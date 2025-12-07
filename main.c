@@ -3,26 +3,29 @@
 
 //la lista enlazada define su extremo izquierdo con un puntero anterior nulo y su extremo derecho con un puntero next nulo
 // el struct ocupa 16 bytes en la memoria
-typedef struct Node 
-{
+typedef struct Node {
 	int data;
 	struct Node *next;
+  struct Node *previous;
 } Node;
 
+typedef struct Indice {
+  struct Node *apuntado;
+} Indice;
+
 //funcion que crear un nodo y lo agrega una nueva direccion en la lista
-int crear_nodo(Node *anterior, int datos)
+int crear_nodo(Indice *indice, int datos)
 {
-	if (anterior == NULL)
-	{
-		return -1;
-	}
-	Node *nuevo = malloc(16);
+	Node *nuevo = calloc(1, 16);
   nuevo->data = datos;
   nuevo->next = NULL;
-	if (anterior->next == NULL)
-	{
-    anterior->next = nuevo;
-	}
+  if (indice->apuntado != NULL)
+  {
+    nuevo->previous = indice->apuntado;
+    indice->apuntado = nuevo;
+  } else {
+    indice->apuntado = nuevo;
+  }
 	return 0;
 }
 
@@ -36,27 +39,26 @@ void obtener_nodo()
 
 }
 
-void copiar_datos()
+void reescribir_datos()
 {
 
 }
 
-//funcion que muestra los nodos a partir del indice provisto, generalmente recomendado que este puntero sea al primero nodo de la lista
-void mostrar_lista(Node *primer_nodo)
+void vaciar_lista()
 {
-	if (primer_nodo == NULL)
-	{
-		printf("Error: el puntero pasado a la funcion es nulo\n");
-	}
-	else
-	{
-		while (primer_nodo->next != NULL)
-		{
-			printf("%d\n", primer_nodo->data);
-			primer_nodo = primer_nodo->next;
-		}
-		printf("%d\n", primer_nodo->data);
-	}
+
+}
+
+//funcion que muestra los nodos a partir del indice provisto, retrocediendo desde ese indice hasta el principio de la lista
+void mostrar_lista(Indice *indice)
+{
+  Node *posicion_inicial = indice->apuntado;
+  while (indice->apuntado->previous != NULL) 
+  {
+    printf("%d\n", indice->apuntado->data);
+    indice->apuntado = indice->apuntado->previous;
+  }
+  indice->apuntado = posicion_inicial;
 }
 
 /*
@@ -68,7 +70,8 @@ void mostrar_lista(Node *primer_nodo)
 int main()
 {
   //printf("%d\n", sizeof(Node));
-	Node *primero = malloc(16);
+  //el puntero indice sirve como el indice de en que posicion actual de la lista se esta en el momento
+	Indice *indice = calloc(1, sizeof(Indice));
 	printf("Bienvenido a el controlador the listas enlazadas, ¿que quiere hacer?\n");
 	printf("Ingrese 1 para crear un nodo, 2 para borrar un nodo, 3 para ver la lista de nodos actual, 4 para acceder a un nodo especifico, 5 para salir del programa\n");
 	int ingreso = 0;
@@ -81,11 +84,20 @@ int main()
         printf("Ingrese el numero entero que quiere guardar en este nuevo nodo\n");
         int nuevo_numero = 0;
         scanf("%d", &nuevo_numero);
-        if (crear_nodo(primero, nuevo_numero) == 0)
+        if (crear_nodo(indice, nuevo_numero) == 0)
         {
-          printf("Su nuevo nodo ha sido creado y contiene el numero %d\n", primero->next->data);
+          printf("Su nuevo nodo ha sido creado y contiene el numero %d\n", indice->apuntado->data);
         }
         //indice_actual = indice_actual->next;//esto seria el indice que indica la posicion dentro de la listas
+        break;
+      case 2:
+        printf("Ingrese el indice de nodo que quiere borrar\n");
+        break;
+      case 3:
+        mostrar_lista(indice);
+        break;
+      case 4:
+        printf("Ingresa el indice del nodo que queres acceder\n");
         break;
     }
     printf("Que operacion va a hacer?\n");
